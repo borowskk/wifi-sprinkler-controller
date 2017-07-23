@@ -20,12 +20,12 @@ Software:
   - You will have to modify the IP address (currently hard-coded) to point to your HLK-SW16, eventually this will be menu-driven
 
 Background:
-    - Goal: Build a low-cost DIY sprinkler controller, accessible via WIFI, with advanced features such as running custom routines
-    - My original technical intentions were to reload the firmware on the HLK device w/ my own Linux and custom SW
-      -However, I found the feature-set of the current firmware sufficient
-      - It exposes all its interfaces over a simple TCP protocol (which I reverse-engineered in order to write this software)
-      - It has a sort of CRON job scheduler
-      - It can be attached to your WIFI as a client
+  - Goal: Build a low-cost DIY sprinkler controller, accessible via WIFI, with advanced features such as running custom routines
+  - My original technical intentions were to reload the firmware on the HLK device w/ my own Linux and custom SW
+    -However, I found the feature-set of the current firmware sufficient
+    - It exposes all its interfaces over a simple TCP protocol (which I reverse-engineered in order to write this software)
+    - It has a sort of CRON job scheduler
+    - It can be attached to your WIFI as a client
 
 Building:
   - My environment had Netbeans 8.2, the Android SDK, and Oracle's 1.8 JDK. I also installed the gluon plugin for Netbeans through the Netbeans Tools-Plugins menu.
