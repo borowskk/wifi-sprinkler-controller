@@ -22,7 +22,7 @@ Software:
 Background:
   - Goal: Build a low-cost DIY sprinkler controller, accessible via WIFI, with advanced features such as running custom routines
   - My original technical intentions were to reload the firmware on the HLK device w/ my own Linux and custom SW
-    -However, I found the feature-set of the current firmware sufficient
+    - However, I found the feature-set of the current firmware sufficient
     - It exposes all its interfaces over a simple TCP protocol (which I reverse-engineered in order to write this software)
     - It has a sort of CRON job scheduler
     - It can be attached to your WIFI as a client
