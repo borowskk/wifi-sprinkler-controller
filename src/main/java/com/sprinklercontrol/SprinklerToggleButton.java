@@ -34,7 +34,6 @@ public class SprinklerToggleButton extends ToggleButton {
         this.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
                 SprinklerToggleButton button = (SprinklerToggleButton) event.getSource();
                 if (button.isSelected()) {
                     commTask.sendMessage(new TxMsgOnOff(true, code));
@@ -43,5 +42,8 @@ public class SprinklerToggleButton extends ToggleButton {
                 }
             }
         });
+        setMaxWidth(Double.MAX_VALUE);
+        setPrefHeight(BigButton.HEIGHT);
+        setMaxHeight(BigButton.HEIGHT);        
     }
 }

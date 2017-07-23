@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.scene.control.Alert;
 
 /**
  *
@@ -78,27 +79,24 @@ public class CommTask implements Runnable {
             dout = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             WatchDogTimer queryWatchDog = new WatchDogTimer(500);
-            
+
             while (!exitRequested) {
                 // Send connect msg, device will respond w/ status
                 if (System.currentTimeMillis() - lastStatus > 10000) {
                     sendMessage(new TxMsgConnect());
                 }
-                
+
                 RxMsg msg = readMessage();
                 if (msg instanceof RxMsgStatus) {
                     if (handler != null) {
-                        handler.onStatus((RxMsgStatus)msg);
+                        handler.onStatus((RxMsgStatus) msg);
                     }
                 } else if (msg instanceof RxMsgZoneStatus) {
                     lastStatus = System.currentTimeMillis();
                     if (handler != null) {
-                        handler.onZoneStatus((RxMsgZoneStatus)msg);
+                        handler.onZoneStatus((RxMsgZoneStatus) msg);
                     }
                 } else if (msg instanceof RxMsgScheduleResponse) {
-                    System.out.println("Received Schedule Query Response Msg: ");
-                    System.out.println(msg.toHexString());
-                    System.out.println();
                     if (handler != null) {
                         handler.onScheduleQueryResponse((RxMsgScheduleResponse) msg);
                     }
@@ -114,7 +112,7 @@ public class CommTask implements Runnable {
                         waitingForQueryResponse = false;
                     }
                 }
-                
+
                 if (!waitingForQueryResponse) {
                     for (int i : zones) {
                         if (queryZone((byte) i)) {
@@ -138,11 +136,10 @@ public class CommTask implements Runnable {
         exitRequested = true;
     }
 
-    
     public void setHandler(CommTaskEventHandler handler) {
         this.handler = handler;
     }
-    
+
     public void triggerQuery() {
         lastScheduleQueryTime.clear();
     }
@@ -151,8 +148,6 @@ public class CommTask implements Runnable {
         Date now = new Date();
         if (lastScheduleQueryTime.get(zone) == null
                 || now.getTime() - lastScheduleQueryTime.get(zone).getTime() > 30000) {
-            System.out.println("Sending schedule query for zone: " + zone);
-            System.out.println();
             sendMessage(new TxMsgQuerySchedule(zone));
             lastScheduleQueryTime.put(zone, new Date());
             return true;
@@ -163,23 +158,19 @@ public class CommTask implements Runnable {
     public void sendMessage(TxMsg msg) {
         try {
             byte[] raw = msg.getBytes();
-            
-            StringBuilder retval = new StringBuilder("Tx Msg: ");
-            for (Byte b : raw) {
-                Integer i = new Integer(b);
-                retval.append(Integer.toHexString(i));
-                retval.append(" ");
-            }
-            //System.out.println(retval.toString());
-            
 
             dout.write(raw);
             dout.flush();
         } catch (IOException e) {
             System.err.println("Could not transmit message to controller");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Send Failed");
+            alert.setHeaderText("Send Failed");
+            alert.setContentText("Failed to send command to device.");
+            alert.showAndWait();
         }
-    }    
-    
+    }
+
     private RxMsg readMessage() throws IOException {
         // Read until we get the start of message signal
         ArrayList<Byte> garbage = readUntil((byte) 0xcc);

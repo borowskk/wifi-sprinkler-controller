@@ -15,16 +15,20 @@
  */
 package com.sprinklercontrol;
 
-import javafx.scene.control.Label;
-import javafx.scene.text.Font;
+import javafx.scene.control.Button;
 
 /**
  *
  * @author kyle
  */
-public class HeadingLabel extends Label {
-    public HeadingLabel(String text) {
+public class BigButton extends Button {
+
+    public static double HEIGHT = 75;
+    
+    public BigButton(String text) {
         super(text);
-        setFont(new Font("Arial", 20));
+        setMaxWidth(Double.MAX_VALUE);
+        setPrefHeight(HEIGHT);
+        setMaxHeight(HEIGHT);
     }
 }

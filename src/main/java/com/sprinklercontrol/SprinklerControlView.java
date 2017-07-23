@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Kyle Borowski
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.sprinklercontrol;
 
 import com.gluonhq.charm.glisten.control.AppBar;
@@ -5,75 +20,142 @@ import com.gluonhq.charm.glisten.mvc.View;
 import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class SprinklerControlView extends View {
-    private ScheduleTable table = null;
-  
-    //public final List<Integer> zones = new ArrayList<>(java.util.Arrays.asList(12, 14));
 
+    private AdvancedScheduleTable table = null;
+
+    //public final List<Integer> zones = new ArrayList<>(java.util.Arrays.asList(12, 14));
     public final List<Integer> zones = new ArrayList<>(java.util.Arrays.asList(0, 2, 4, 6, 8, 10, 12, 14));
 
     private final Text time = new Text();
-    
+
     private final List<SprinklerToggleButton> buttons = new ArrayList<>();
-    
+
     public Thread commThread = null;
-    
+
     public SprinklerControlView(String name) {
         super(name);
-        
+
         SprinklerEventHandler commHandler = new SprinklerEventHandler(this);
         CommTask commTask = new CommTask("192.168.1.186", 8080, zones, commHandler);
         commThread = new Thread(commTask);
-        
+
+        ScrollPane scrollRoot = new ScrollPane();
+        scrollRoot.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
         VBox root = new VBox();
         root.setSpacing(5);
         root.setPadding(new Insets(5, 5, 5, 5));
         root.setMaxWidth(350);
-        
-        root.getChildren().add(new HeadingLabel("TIME"));      
-        root.getChildren().add(time);
 
-        root.getChildren().add(new HeadingLabel("ON/OFF"));        
+        root.getChildren().add(new HeadingLabel("TIME"));
+        root.getChildren().add(time);
+        root.getChildren().add(new Separator());
+
+        root.getChildren().add(new HeadingLabel("ON/OFF"));
         for (int zone : zones) {
             SprinklerToggleButton btn = new SprinklerToggleButton((byte) zone, "Toggle Zone " + String.format("%02d", zone), commTask);
             root.getChildren().add(btn);
             buttons.add(btn);
         }
+        root.getChildren().add(new Separator());
+
+        root.getChildren().add(new HeadingLabel("ROUTINES"));
+        BigButton blowout = new BigButton("BLOWOUT");
+        blowout.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Alert warn = new Alert(Alert.AlertType.CONFIRMATION);
+                warn.setTitle("Confirm Blowout");
+                warn.setHeaderText("Confirm Blowout");
+                warn.setContentText("Click OK once air compressor is ready.");
+                Optional<ButtonType> result = warn.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    for (int zone : zones) {
+                        try {
+                            commTask.sendMessage(new TxMsgOnOff(true, (byte) zone));
+                            Thread.sleep(30000); // Run station for 30 seconds
+                            commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
+                            Thread.sleep(300000); // Wait 5 min for air compressor to recharge
+                        } catch (InterruptedException e) {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Routine Failed");
+                            alert.setHeaderText("Routine Failed");
+                            alert.setContentText("Routine unexpectedly failed.");
+                            alert.showAndWait();
+                        }
+                    }
+                }
+            }
+        });
+        root.getChildren().add(blowout);
+
+        BigButton allZones = new BigButton("RUNONCE");
+        allZones.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                confirm.setTitle("Confirm All Zones");
+                confirm.setHeaderText("Confirm All Zones");
+                confirm.setContentText("Click OK to run all zones for 10 minutes.");
+                Optional<ButtonType> result = confirm.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    for (int zone : zones) {
+                        try {
+
+                            commTask.sendMessage(new TxMsgOnOff(true, (byte) zone));
+                            Thread.sleep(600000); // Run station for 10 minutes
+                            commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
+
+                        } catch (InterruptedException e) {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Routine Failed");
+                            alert.setHeaderText("Routine Failed");
+                            alert.setContentText("Routine unexpectedly failed.");
+                            alert.showAndWait();
+                        }
+                    }
+                }
+            }
+        });
+        root.getChildren().add(allZones);
+        root.getChildren().add(new Separator());
 
         root.getChildren().add(new HeadingLabel("Schedule"));
-        table = new ScheduleTable(commTask);
+        table = new AdvancedScheduleTable(commTask);
         root.getChildren().add(table);
+        root.getChildren().add(new Separator());
 
-        root.getChildren().add(new HeadingLabel("Add To Schedule"));        
+        root.getChildren().add(new HeadingLabel("Add To Schedule"));
         root.getChildren().add(new AddScheduleWidget(commTask, table));
+        root.getChildren().add(new Separator());
 
         commThread.start();
 
-        ScrollPane pane = new ScrollPane();
-        
-        pane.setContent(root);
-        pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        
-        setCenter(pane);
+        scrollRoot.setContent(root);
+
+        setCenter(scrollRoot);
     }
 
     void clearTable() {
-        table.getItems().clear();
+        table.clearTable();
     }
 
     void addToTable(ScheduleEntry entry) {
-        if (!table.getItems().contains(entry)) {
-            table.getItems().add(entry);
-        }
-    }
-
-    void removeFromTable(int rowIndex) {
-        table.getItems().remove(rowIndex);
+        table.addScheduleEntry(entry);
     }
 
     void setTime(int hour, int minute) {
@@ -81,19 +163,19 @@ public class SprinklerControlView extends View {
         String minuteString = String.format("%02d", minute);
         time.setText(hourString + ":" + minuteString);
     }
-    
+
     void setButtonState(int zone, boolean toggleOn) {
         int i = zones.indexOf(zone);
         if (i != -1) {
             buttons.get(i).setSelected(toggleOn);
         }
     }
-    
+
     @Override
     protected void updateAppBar(AppBar appBar) {
         appBar.setNavIcon(MaterialDesignIcon.MENU.button(e -> System.out.println("Menu")));
         appBar.setTitleText("DIY Sprinkler Control");
         appBar.getActionItems().add(MaterialDesignIcon.SEARCH.button(e -> System.out.println("Search")));
     }
-    
+
 }

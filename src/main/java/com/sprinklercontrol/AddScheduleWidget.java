@@ -1,19 +1,27 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2017 Kyle Borowski
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.sprinklercontrol;
 
 import java.util.ArrayList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 
 /**
  *
@@ -23,7 +31,7 @@ public class AddScheduleWidget extends VBox {
 
     private CommTask commTask = null;
     
-    private ScheduleTable table = null;
+    private AdvancedScheduleTable table = null;
     
     private TextField addZone = null;
     
@@ -35,7 +43,7 @@ public class AddScheduleWidget extends VBox {
     
     private TextField addMinute = null;
     
-    public AddScheduleWidget(CommTask commTask, ScheduleTable table) {
+    public AddScheduleWidget(CommTask commTask, AdvancedScheduleTable table) {
         this.commTask = commTask;
         this.table = table;
         
@@ -49,7 +57,7 @@ public class AddScheduleWidget extends VBox {
         addMinute = new TextField();
         addMinute.setPromptText("Minute");
 
-        final Button addButton = new Button("Add");
+        final BigButton addButton = new BigButton("Add");
         addButton.setOnAction((ActionEvent e) -> {
             addAction();
         });
@@ -76,7 +84,7 @@ public class AddScheduleWidget extends VBox {
             TxMsgAddSchedule addMsg = new TxMsgAddSchedule(new ScheduleEntry(open, zone, hour, minute, days, 0));            
             
             if (table != null) {
-                table.getItems().clear();
+                table.clearTable();
             }
 
             if (commTask != null) {
