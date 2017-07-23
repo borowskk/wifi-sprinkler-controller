@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.model;
 
 /**
  *
  * @author kyle
  */
-public class WatchDogTimer {
-    private int milliseconds;
-    private long startTime;
+public class TxMsgOnOff extends TxMsg {
+
+    private final byte OPEN = (byte)0x1;
+    private final byte CLOSE = (byte)0x2;
     
-    public WatchDogTimer(int milliseconds) {
-        this.milliseconds = milliseconds;
-        startTime = 0;
+    private final byte zone;
+    private final byte onOff;
+    
+    public TxMsgOnOff(boolean on, byte zone) {
+        this.onOff = on ? OPEN : CLOSE;
+        this.zone = zone;
     }
     
-    public void start() {
-        startTime = System.currentTimeMillis();
-    }
-    
-    public boolean checkExpired() {
-        if (System.currentTimeMillis() - startTime >= milliseconds) {
-            return true;
-        }
-        return false;
+    @Override
+    public byte[] getBytes() {
+        byte[] retval = { TXSTART, OPONOFF, zone, onOff, FILL, FILL, FILL, FILL, 
+                                  FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, 
+                                  FILL, FILL, FILL, TXEND};
+        return retval;    
     }
     
 }

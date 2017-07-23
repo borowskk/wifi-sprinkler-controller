@@ -13,8 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.controller;
 
+import com.sprinklercontrol.controller.CommTaskEventHandler;
+import com.sprinklercontrol.model.RxMsg;
+import com.sprinklercontrol.model.RxMsgStatus;
+import com.sprinklercontrol.model.RxMsgZoneStatus;
+import com.sprinklercontrol.model.RxMsgScheduleResponseComplete;
+import com.sprinklercontrol.model.RxMsgScheduleResponse;
+import com.sprinklercontrol.model.TxMsg;
+import com.sprinklercontrol.model.TxMsgQuerySchedule;
+import com.sprinklercontrol.model.TxMsgConnect;
+import com.sprinklercontrol.controller.WatchDogTimer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.model;
 
+import com.sprinklercontrol.model.ScheduleEntry;
 import java.util.ArrayList;
 import java.util.List;
 

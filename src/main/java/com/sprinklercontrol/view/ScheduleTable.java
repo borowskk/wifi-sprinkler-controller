@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.view;
 
+import com.sprinklercontrol.controller.CommTask;
+import com.sprinklercontrol.model.ScheduleEntry;
+import com.sprinklercontrol.model.TxMsgDeleteSchedule;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +44,7 @@ import javafx.scene.text.Font;
  *
  * @author kyle
  */
-public class AdvancedScheduleTable extends VBox {
+public class ScheduleTable extends VBox {
     
     private class TableLabel extends Label {
 
@@ -67,7 +70,7 @@ public class AdvancedScheduleTable extends VBox {
     
     public static final double L_WIDTH = 150;
 
-    public AdvancedScheduleTable(CommTask commTask) {
+    public ScheduleTable(CommTask commTask) {
         this.commTask = commTask;
 
         headerRow.getChildren().addAll(new TableLabel("Zone"), new TableLabel("Time"), new TableLabel("Days", L_WIDTH));

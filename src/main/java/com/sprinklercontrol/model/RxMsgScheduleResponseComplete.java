@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.model;
+
+import java.util.ArrayList;
 
 /**
  *
  * @author kyle
  */
-public class TxMsgQuerySchedule extends TxMsg {
-
-    byte zone;
-    
-    public TxMsgQuerySchedule(byte zone) {
-        this.zone = zone;
-    }
-    
-    @Override
-    public byte[] getBytes() {
-        byte[] retval = { TXSTART, OPQUERY, zone, FILL, FILL, FILL, FILL, FILL, 
-                          FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, 
-                          FILL, FILL, TXEND};
-        return retval;
+public class RxMsgScheduleResponseComplete extends RxMsg {
+ 
+    public RxMsgScheduleResponseComplete(ArrayList<Byte> raw) {
+        super(raw);
     }
     
 }

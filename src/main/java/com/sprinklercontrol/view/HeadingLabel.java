@@ -13,34 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sprinklercontrol.view;
 
-package com.sprinklercontrol;
-
-import java.util.ArrayList;
+import javafx.scene.control.Label;
+import javafx.scene.text.Font;
 
 /**
  *
  * @author kyle
  */
-public class RxMsg {
-    
-    ArrayList<Byte> raw;
-    public RxMsg(ArrayList<Byte> bytes) {
-        this.raw = bytes;
-    }
-    
-    public String toHexString() {
-        StringBuilder retval = new StringBuilder("Msg: ");
-        for (Byte b: raw) {
-            Integer i = new Integer(b);
-            retval.append(Integer.toHexString(i));
-            retval.append(" ");
-        }
-        return retval.toString();
-    }
-    
-    @Override
-    public String toString() {
-        return "TypeCode: " + Integer.toHexString(raw.get(0)) + "Msg: " + toHexString();
+public class HeadingLabel extends Label {
+    public HeadingLabel(String text) {
+        super(text);
+        setFont(new Font("Arial", 20));
     }
 }

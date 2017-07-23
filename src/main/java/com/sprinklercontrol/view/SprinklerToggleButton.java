@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.view;
 
+import com.sprinklercontrol.controller.CommTask;
+import com.sprinklercontrol.model.TxMsgOnOff;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ToggleButton;

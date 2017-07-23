@@ -13,24 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.controller;
 
 /**
  *
  * @author kyle
  */
-public class TxMsgConnect extends TxMsg {
-
-    public TxMsgConnect() {
-        
+public class WatchDogTimer {
+    private int milliseconds;
+    private long startTime;
+    
+    public WatchDogTimer(int milliseconds) {
+        this.milliseconds = milliseconds;
+        startTime = 0;
     }
     
-    @Override
-    public byte[] getBytes() {
-        byte[] retval = { TXSTART, OPCONNECT, FILL, FILL, FILL, FILL, FILL, FILL, 
-                          FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, 
-                          FILL, FILL, TXEND};
-        return retval;
+    public void start() {
+        startTime = System.currentTimeMillis();
+    }
+    
+    public boolean checkExpired() {
+        if (System.currentTimeMillis() - startTime >= milliseconds) {
+            return true;
+        }
+        return false;
     }
     
 }

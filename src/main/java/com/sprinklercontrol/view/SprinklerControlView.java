@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.view;
 
+import com.sprinklercontrol.model.TxMsgOnOff;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
+import com.sprinklercontrol.controller.CommTask;
+import com.sprinklercontrol.model.ScheduleEntry;
+import com.sprinklercontrol.controller.SprinklerEventHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,17 +29,15 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class SprinklerControlView extends View {
 
-    private AdvancedScheduleTable table = null;
+    private ScheduleTable table = null;
 
     //public final List<Integer> zones = new ArrayList<>(java.util.Arrays.asList(12, 14));
     public final List<Integer> zones = new ArrayList<>(java.util.Arrays.asList(0, 2, 4, 6, 8, 10, 12, 14));
@@ -135,7 +137,7 @@ public class SprinklerControlView extends View {
         root.getChildren().add(new Separator());
 
         root.getChildren().add(new HeadingLabel("Schedule"));
-        table = new AdvancedScheduleTable(commTask);
+        table = new ScheduleTable(commTask);
         root.getChildren().add(table);
         root.getChildren().add(new Separator());
 
@@ -150,21 +152,21 @@ public class SprinklerControlView extends View {
         setCenter(scrollRoot);
     }
 
-    void clearTable() {
+    public void clearTable() {
         table.clearTable();
     }
 
-    void addToTable(ScheduleEntry entry) {
+    public void addToTable(ScheduleEntry entry) {
         table.addScheduleEntry(entry);
     }
 
-    void setTime(int hour, int minute) {
+    public void setTime(int hour, int minute) {
         String hourString = String.format("%02d", hour);
         String minuteString = String.format("%02d", minute);
         time.setText(hourString + ":" + minuteString);
     }
 
-    void setButtonState(int zone, boolean toggleOn) {
+    public void setButtonState(int zone, boolean toggleOn) {
         int i = zones.indexOf(zone);
         if (i != -1) {
             buttons.get(i).setSelected(toggleOn);

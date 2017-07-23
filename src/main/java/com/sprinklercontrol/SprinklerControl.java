@@ -15,6 +15,7 @@
  */
 package com.sprinklercontrol;
 
+import com.sprinklercontrol.view.SprinklerControlView;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.visual.Swatch;
 import javafx.scene.Scene;

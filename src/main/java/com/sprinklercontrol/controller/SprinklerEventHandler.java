@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.controller;
 
+import com.sprinklercontrol.controller.CommTaskEventHandler;
+import com.sprinklercontrol.model.RxMsgScheduleResponse;
+import com.sprinklercontrol.model.RxMsgStatus;
+import com.sprinklercontrol.model.RxMsgZoneStatus;
+import com.sprinklercontrol.model.ScheduleEntry;
+import com.sprinklercontrol.view.SprinklerControlView;
 import java.util.List;
 
 /**

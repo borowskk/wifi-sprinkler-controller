@@ -13,8 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.view;
 
+import com.sprinklercontrol.view.ScheduleTable;
+import com.sprinklercontrol.view.BigButton;
+import com.sprinklercontrol.controller.CommTask;
+import com.sprinklercontrol.model.Day;
+import com.sprinklercontrol.view.DaysSelector;
+import com.sprinklercontrol.model.ScheduleEntry;
+import com.sprinklercontrol.model.TxMsgAddSchedule;
 import java.util.ArrayList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
@@ -31,7 +38,7 @@ public class AddScheduleWidget extends VBox {
 
     private CommTask commTask = null;
     
-    private AdvancedScheduleTable table = null;
+    private ScheduleTable table = null;
     
     private TextField addZone = null;
     
@@ -43,7 +50,7 @@ public class AddScheduleWidget extends VBox {
     
     private TextField addMinute = null;
     
-    public AddScheduleWidget(CommTask commTask, AdvancedScheduleTable table) {
+    public AddScheduleWidget(CommTask commTask, ScheduleTable table) {
         this.commTask = commTask;
         this.table = table;
         

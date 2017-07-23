@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.view;
 
+import com.sprinklercontrol.model.Day;
 import java.util.ArrayList;
 import javafx.scene.control.RadioButton;
 import javafx.scene.layout.HBox;

@@ -13,31 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.model;
 
 /**
  *
  * @author kyle
  */
-public class TxMsgOnOff extends TxMsg {
+public class TxMsgConnect extends TxMsg {
 
-    private final byte OPEN = (byte)0x1;
-    private final byte CLOSE = (byte)0x2;
-    
-    private final byte zone;
-    private final byte onOff;
-    
-    public TxMsgOnOff(boolean on, byte zone) {
-        this.onOff = on ? OPEN : CLOSE;
-        this.zone = zone;
+    public TxMsgConnect() {
+        
     }
     
     @Override
     public byte[] getBytes() {
-        byte[] retval = { TXSTART, OPONOFF, zone, onOff, FILL, FILL, FILL, FILL, 
-                                  FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, 
-                                  FILL, FILL, FILL, TXEND};
-        return retval;    
+        byte[] retval = { TXSTART, OPCONNECT, FILL, FILL, FILL, FILL, FILL, FILL, 
+                          FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, FILL, 
+                          FILL, FILL, TXEND};
+        return retval;
     }
     
 }

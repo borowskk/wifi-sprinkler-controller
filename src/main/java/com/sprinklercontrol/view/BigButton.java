@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sprinklercontrol;
+package com.sprinklercontrol.view;
+
+import javafx.scene.control.Button;
 
 /**
  *
  * @author kyle
  */
-public interface CommTaskEventHandler {
-    public void onStatus(RxMsgStatus msg);
+public class BigButton extends Button {
+
+    public static double HEIGHT = 75;
     
-    public void onZoneStatus(RxMsgZoneStatus msg);
-    
-    public void onScheduleQueryResponse(RxMsgScheduleResponse msg);
+    public BigButton(String text) {
+        super(text);
+        setMaxWidth(Double.MAX_VALUE);
+        setPrefHeight(HEIGHT);
+        setMaxHeight(HEIGHT);
+    }
 }
