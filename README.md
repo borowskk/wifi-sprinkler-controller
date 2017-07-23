@@ -36,6 +36,5 @@ Picture of HLK-SW16 wired-up to replace my original sprinker controller.
 
 Picture of the software control application in this repository.
 
-![app](https://user-images.githubusercontent.com/1266984/28503160-94b4b49a-6fbe-11e7-8863-ff2d270b4917.png)
-
+![app](https://user-images.githubusercontent.com/1266984/28503526-24abddec-6fc6-11e7-8079-c50531422342.png)
 

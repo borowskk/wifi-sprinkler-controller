@@ -63,11 +63,11 @@ public class SprinklerControlView extends View {
         root.setPadding(new Insets(5, 5, 5, 5));
         root.setMaxWidth(350);
 
-        root.getChildren().add(new HeadingLabel("TIME"));
+        root.getChildren().add(new HeadingLabel("Time"));
         root.getChildren().add(time);
         root.getChildren().add(new Separator());
 
-        root.getChildren().add(new HeadingLabel("ON/OFF"));
+        root.getChildren().add(new HeadingLabel("On/Off"));
         for (int zone : zones) {
             SprinklerToggleButton btn = new SprinklerToggleButton((byte) zone, "Toggle Zone " + String.format("%02d", zone), commTask);
             root.getChildren().add(btn);
@@ -75,7 +75,7 @@ public class SprinklerControlView extends View {
         }
         root.getChildren().add(new Separator());
 
-        root.getChildren().add(new HeadingLabel("ROUTINES"));
+        root.getChildren().add(new HeadingLabel("Routines"));
         BigButton blowout = new BigButton("BLOWOUT");
         blowout.setOnAction(new EventHandler<ActionEvent>() {
             @Override
