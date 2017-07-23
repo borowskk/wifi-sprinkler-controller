@@ -8,8 +8,8 @@ Hardware:
   - Wiring 
     - You must power the HLK-SW16 with its included power adapter
     - Use your original controller's power adapter (if the voltage is correct) to drive the sprinkler valves through the relays
-    - Tie 1 wire from each sprinkler valve all to 1 of the wires from the original controller's power adapter
-    - Tie the other wire from each sprinkler valve each to 1 side of each relay
+    - Tie the common wire from the sprinkler valves to 1 of the wires from the original controller's power adapter
+    - Tie each wire from a sprinkler valve each to 1 side of each relay
     - Tie the other wire from the controller's power adapter to the other side of each relay
 
 Software:
@@ -31,9 +31,11 @@ Building:
   - My environment had Netbeans 8.2, the Android SDK, and Oracle's 1.8 JDK. I also installed the gluon plugin for Netbeans through the Netbeans Tools-Plugins menu.
 
 Picture of HLK-SW16 wired-up to replace my original sprinker controller.
+
 ![hlk-sw16](https://user-images.githubusercontent.com/1266984/28492743-02ac2c20-6ec6-11e7-892e-768215ed45e5.JPG)
 
 Picture of the software control application in this repository.
+
 ![app](https://user-images.githubusercontent.com/1266984/28503160-94b4b49a-6fbe-11e7-8863-ff2d270b4917.png)
 
 
