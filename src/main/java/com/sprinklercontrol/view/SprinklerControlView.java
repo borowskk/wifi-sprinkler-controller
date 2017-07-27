@@ -25,6 +25,7 @@ import com.sprinklercontrol.controller.SprinklerEventHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -32,6 +33,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -46,13 +48,22 @@ public class SprinklerControlView extends View {
 
     private final List<SprinklerToggleButton> buttons = new ArrayList<>();
 
-    public Thread commThread = null;
+    public CommTask commTask = null;
 
+    private Thread commThread = null;
+    
+    private SprinklerEventHandler commHandler = null;
+
+    private final String HOSTNAME_PREF_NAME = "hostname";
+    
     public SprinklerControlView(String name) {
         super(name);
+        
+        Preferences prefs = Preferences.userNodeForPackage(SprinklerControlView.class);
+        String hostname = prefs.get(HOSTNAME_PREF_NAME, "192.168.1.186");
 
-        SprinklerEventHandler commHandler = new SprinklerEventHandler(this);
-        CommTask commTask = new CommTask("192.168.1.186", 8080, zones, commHandler);
+        commHandler = new SprinklerEventHandler(this);
+        commTask = new CommTask(hostname, 8080, zones, commHandler);
         commThread = new Thread(commTask);
 
         ScrollPane scrollRoot = new ScrollPane();
@@ -93,10 +104,7 @@ public class SprinklerControlView extends View {
                             commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
                             Thread.sleep(300000); // Wait 5 min for air compressor to recharge
                         } catch (InterruptedException e) {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Routine Failed");
-                            alert.setHeaderText("Routine Failed");
-                            alert.setContentText("Routine unexpectedly failed.");
+                            AlertDialog alert = new AlertDialog("Routine Failed", "Routine unexpectedly failed.");
                             alert.showAndWait();
                         }
                     }
@@ -123,10 +131,7 @@ public class SprinklerControlView extends View {
                             commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
 
                         } catch (InterruptedException e) {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Routine Failed");
-                            alert.setHeaderText("Routine Failed");
-                            alert.setContentText("Routine unexpectedly failed.");
+                            AlertDialog alert = new AlertDialog("Routine Failed", "Routine unexpectedly failed.");
                             alert.showAndWait();
                         }
                     }
@@ -175,9 +180,39 @@ public class SprinklerControlView extends View {
 
     @Override
     protected void updateAppBar(AppBar appBar) {
-        appBar.setNavIcon(MaterialDesignIcon.MENU.button(e -> System.out.println("Menu")));
+        appBar.setNavIcon(MaterialDesignIcon.MENU.button(e -> showMenu()));
         appBar.setTitleText("DIY Sprinkler Control");
-        appBar.getActionItems().add(MaterialDesignIcon.SEARCH.button(e -> System.out.println("Search")));
+        //appBar.getActionItems().add(MaterialDesignIcon.SEARCH.button(e -> System.out.println("Search")));
+    }
+
+    private void showMenu() {
+        // Retrieve the user preference node for the package com.mycompany
+        Preferences prefs = Preferences.userNodeForPackage(SprinklerControlView.class);
+        String cur = prefs.get(HOSTNAME_PREF_NAME, "localhost");
+
+        TextInputDialog dialog = new TextInputDialog(cur);
+        //TextInputDialog dialog = new TextInputDialog("192.168.1.186");
+        dialog.setTitle("IP Address");
+        dialog.setHeaderText("Specify Device IP Address");
+        dialog.setContentText("Specify Device IP Address:");
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            // Retrieve the user preference node for the package com.mycompany
+            prefs.put(HOSTNAME_PREF_NAME, result.get());
+
+            commTask.stop();
+            try {
+                commThread.join(20000);
+            } catch (InterruptedException e) {
+                AlertDialog alert = new AlertDialog("Fatal Error", "Failed To Stop Communication Task");
+                alert.showAndWait();
+                System.exit(1);
+            }
+            commTask.reset(result.get(), 8080);
+            commThread = new Thread(commTask);
+            commThread.start();
+        }
     }
 
 }

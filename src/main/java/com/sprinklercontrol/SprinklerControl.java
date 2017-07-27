@@ -33,8 +33,8 @@ public class SprinklerControl extends MobileApplication {
     public void stop(){
         SprinklerControlView view = (SprinklerControlView)getView();
         
-        if (view.commThread != null) {
-            view.commThread.stop();
+        if (view.commTask != null) {
+            view.commTask.stop();
         }
     }
 

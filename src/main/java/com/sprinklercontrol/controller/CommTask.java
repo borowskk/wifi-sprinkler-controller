@@ -15,7 +15,6 @@
  */
 package com.sprinklercontrol.controller;
 
-import com.sprinklercontrol.controller.CommTaskEventHandler;
 import com.sprinklercontrol.model.RxMsg;
 import com.sprinklercontrol.model.RxMsgStatus;
 import com.sprinklercontrol.model.RxMsgZoneStatus;
@@ -24,7 +23,7 @@ import com.sprinklercontrol.model.RxMsgScheduleResponse;
 import com.sprinklercontrol.model.TxMsg;
 import com.sprinklercontrol.model.TxMsgQuerySchedule;
 import com.sprinklercontrol.model.TxMsgConnect;
-import com.sprinklercontrol.controller.WatchDogTimer;
+import com.sprinklercontrol.view.AlertDialog;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -39,6 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 
 /**
@@ -56,8 +56,8 @@ public class CommTask implements Runnable {
 
     private long lastStatus = 0;
     private final Map<Byte, Date> lastScheduleQueryTime = new HashMap<>();
-    private final String hostName;
-    private final int port;
+    private String hostName;
+    private int port;
     private final List<Integer> zones;
 
     public CommTask(String hostName, int port, List<Integer> zones, CommTaskEventHandler handler) {
@@ -71,75 +71,99 @@ public class CommTask implements Runnable {
 
     @Override
     public void run() {
-        try {
-            if (!socket.isConnected()) {
-                System.out.println("Will connect to controller at: " + hostName + " on port: " + port);
-                InetAddress inteAddress = InetAddress.getByName(hostName);
-                SocketAddress socketAddress = new InetSocketAddress(inteAddress, port);
+        while (!exitRequested) {
+            try {
+                if (!socket.isConnected()) {
+                    System.out.println("Will connect to controller at: " + hostName + " on port: " + port);
+                    InetAddress inteAddress = InetAddress.getByName(hostName);
+                    SocketAddress socketAddress = new InetSocketAddress(inteAddress, port);
 
-                // create a socket
-                socket = new Socket();
+                    // create a socket
+                    socket = new Socket();
 
-                // this method will block no more than timeout ms.
-                int timeoutInMs = 10 * 1000;   // 10 seconds
-                socket.connect(socketAddress, timeoutInMs);
-            }
-
-            din = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            dout = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-
-            WatchDogTimer queryWatchDog = new WatchDogTimer(500);
-
-            while (!exitRequested) {
-                // Send connect msg, device will respond w/ status
-                if (System.currentTimeMillis() - lastStatus > 10000) {
-                    sendMessage(new TxMsgConnect());
+                    // this method will block no more than timeout ms.
+                    int timeoutInMs = 10 * 1000;   // 10 seconds
+                    socket.connect(socketAddress, timeoutInMs);
                 }
 
-                RxMsg msg = readMessage();
-                if (msg instanceof RxMsgStatus) {
-                    if (handler != null) {
-                        handler.onStatus((RxMsgStatus) msg);
-                    }
-                } else if (msg instanceof RxMsgZoneStatus) {
-                    lastStatus = System.currentTimeMillis();
-                    if (handler != null) {
-                        handler.onZoneStatus((RxMsgZoneStatus) msg);
-                    }
-                } else if (msg instanceof RxMsgScheduleResponse) {
-                    if (handler != null) {
-                        handler.onScheduleQueryResponse((RxMsgScheduleResponse) msg);
-                    }
-                } else if (msg instanceof RxMsgScheduleResponseComplete) {
-                    waitingForQueryResponse = false;
-                }
+                din = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+                dout = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
-                // Check the watchdog timer because the HLK SW seems buggy and occasionally fails to respond to queries
-                if (waitingForQueryResponse) {
-                    if (queryWatchDog.checkExpired()) {
-                        System.out.println("A timeout occurred waiting for a query response. Will try again.");
-                        triggerQuery();
+                WatchDogTimer queryWatchDog = new WatchDogTimer(500);
+
+                while (!exitRequested) {
+                    // Send connect msg, device will respond w/ status
+                    if (System.currentTimeMillis() - lastStatus > 10000) {
+                        sendMessage(new TxMsgConnect());
+                    }
+
+                    RxMsg msg = readMessage();
+                    if (msg instanceof RxMsgStatus) {
+                        if (handler != null) {
+                            handler.onStatus((RxMsgStatus) msg);
+                        }
+                    } else if (msg instanceof RxMsgZoneStatus) {
+                        lastStatus = System.currentTimeMillis();
+                        if (handler != null) {
+                            handler.onZoneStatus((RxMsgZoneStatus) msg);
+                        }
+                    } else if (msg instanceof RxMsgScheduleResponse) {
+                        if (handler != null) {
+                            handler.onScheduleQueryResponse((RxMsgScheduleResponse) msg);
+                        }
+                    } else if (msg instanceof RxMsgScheduleResponseComplete) {
                         waitingForQueryResponse = false;
                     }
-                }
 
-                if (!waitingForQueryResponse) {
-                    for (int i : zones) {
-                        if (queryZone((byte) i)) {
-                            queryWatchDog.start();
-                            waitingForQueryResponse = true;
-                            break;
+                    // Check the watchdog timer because the HLK SW seems buggy and occasionally fails to respond to queries
+                    if (waitingForQueryResponse) {
+                        if (queryWatchDog.checkExpired()) {
+                            System.out.println("A timeout occurred waiting for a query response. Will try again.");
+                            triggerQuery();
+                            waitingForQueryResponse = false;
                         }
                     }
+
+                    if (!waitingForQueryResponse) {
+                        for (int i : zones) {
+                            if (queryZone((byte) i)) {
+                                queryWatchDog.start();
+                                waitingForQueryResponse = true;
+                                break;
+                            }
+                        }
+                    }
+
                 }
 
+                din.close();
+
+            } catch (IOException e) {
+                try {
+                    // Consider changing a connected/disconnected icon here
+                    Thread.sleep(5000);
+                } catch (InterruptedException interruptedException) {
+                    AlertDialog alert = new AlertDialog("Fatal Error", "Could not recover from recieve failure.");
+                    alert.showAndWait();
+                    System.exit(1);
+                }
             }
-
-            din.close();
-
-        } catch (IOException e) {
-            System.err.println("Could not receive message from controller");
         }
+    }
+
+    public void reset(String hostName, int port) {
+        this.hostName = hostName;
+        this.port = port;
+
+        try {
+            socket.close();
+            socket = new Socket();
+        } catch (IOException e) {
+            AlertDialog alert = new AlertDialog("Communication Eror", "Failed to close socket");
+            alert.showAndWait();
+        }
+
+        exitRequested = false;
     }
 
     public void stop() {
@@ -172,11 +196,7 @@ public class CommTask implements Runnable {
             dout.write(raw);
             dout.flush();
         } catch (IOException e) {
-            System.err.println("Could not transmit message to controller");
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Send Failed");
-            alert.setHeaderText("Send Failed");
-            alert.setContentText("Failed to send command to device.");
+            AlertDialog alert = new AlertDialog("Send Failed", "Failed to send command to device.");
             alert.showAndWait();
         }
     }
