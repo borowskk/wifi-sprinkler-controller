@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.prefs.Preferences;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -36,6 +39,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class SprinklerControlView extends View {
 
@@ -96,17 +100,34 @@ public class SprinklerControlView extends View {
                 warn.setHeaderText("Confirm Blowout");
                 warn.setContentText("Click OK once air compressor is ready.");
                 Optional<ButtonType> result = warn.showAndWait();
+                Timeline timeline = new Timeline();
+                
+                int seconds = 0;
+                
                 if (result.get() == ButtonType.OK) {
                     for (int zone : zones) {
                         try {
-                            commTask.sendMessage(new TxMsgOnOff(true, (byte) zone));
-                            Thread.sleep(30000); // Run station for 30 seconds
-                            commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
-                            Thread.sleep(300000); // Wait 5 min for air compressor to recharge
-                        } catch (InterruptedException e) {
+                            KeyFrame frame1 = new KeyFrame(Duration.seconds(seconds), (frame1event) -> {
+                                System.out.println("Turning zone " + zone + " on.");
+                                commTask.sendMessage(new TxMsgOnOff(true, (byte) zone));
+                            });
+                            
+                            seconds += 30;
+                            
+                            KeyFrame frame2 = new KeyFrame(Duration.seconds(seconds), (frame2event) -> {
+                                System.out.println("Turning zone " + zone + " off.");
+                                commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
+                            });
+                            
+                            seconds += 150;
+                            
+                            timeline.getKeyFrames().add(frame1);
+                            timeline.getKeyFrames().add(frame2);                                                      
+                        } catch (Exception e) {
                             AlertDialog alert = new AlertDialog("Routine Failed", "Routine unexpectedly failed.");
                             alert.showAndWait();
                         }
+                        Platform.runLater(timeline::play);   
                     }
                 }
             }
@@ -122,18 +143,31 @@ public class SprinklerControlView extends View {
                 confirm.setHeaderText("Confirm All Zones");
                 confirm.setContentText("Click OK to run all zones for 10 minutes.");
                 Optional<ButtonType> result = confirm.showAndWait();
+                Timeline timeline = new Timeline();
+                int seconds = 0;
+                
                 if (result.get() == ButtonType.OK) {
                     for (int zone : zones) {
                         try {
-
-                            commTask.sendMessage(new TxMsgOnOff(true, (byte) zone));
-                            Thread.sleep(600000); // Run station for 10 minutes
-                            commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
-
-                        } catch (InterruptedException e) {
+                            KeyFrame frame1 = new KeyFrame(Duration.seconds(seconds), (frame1event) -> {
+                                                            System.out.println("Turning zone " + zone + " on.");
+                                                            commTask.sendMessage(new TxMsgOnOff(true, (byte) zone));
+                                                        });
+                            
+                            seconds += 600;
+                            
+                            KeyFrame frame2 = new KeyFrame(Duration.seconds(seconds), (frame2event) -> {
+                                System.out.println("Turning zone " + zone + " off.");
+                                commTask.sendMessage(new TxMsgOnOff(false, (byte) zone));
+                            });
+                            
+                            timeline.getKeyFrames().add(frame1);
+                            timeline.getKeyFrames().add(frame2);                              
+                        } catch (Exception e) {
                             AlertDialog alert = new AlertDialog("Routine Failed", "Routine unexpectedly failed.");
                             alert.showAndWait();
                         }
+                        Platform.runLater(timeline::play); 
                     }
                 }
             }
