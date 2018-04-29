@@ -17,7 +17,7 @@ Software:
     - The software available on the web for the HLK-SW16 is a bit buggy, difficult to use, and lacks some features I wanted
     - JavaFX and the gluon plugin for Netbeans/Eclipse makes my implementation compatible with Windows, Linux, and Android
     - While I haven't tested building for iPhone, gluon supports it, so the port would likely be easy
-  - You will have to modify the IP address (currently hard-coded) to point to your HLK-SW16, eventually this will be menu-driven
+  - You will have to modify the IP address in the menu to point to your HLK-SW16
 
 Background:
   - Goal: Build a low-cost DIY sprinkler controller, accessible via WIFI, with advanced features such as running custom routines
@@ -28,8 +28,8 @@ Background:
     - It can be attached to your WIFI as a client
 
 Building:
-  - Netbeans: My environment had Netbeans 8.2, the Android SDK, and Oracle's 1.8 JDK. I also installed the gluon plugin for Netbeans through the Netbeans Tools-Plugins menu.
-    Command Line: Install gradle using something like sdkman. Install Oracle's 1.8 JDK. Run ./gradlew tasks to see build tasks. To build a jar for Desktop Java use ./gradlew shadowJar.
+  - Netbeans: My environment had Netbeans 8.2, the Android SDK, and Oracle's 1.8 JDK. I also installed the gluon plugin for Netbeans through the Netbeans Tools-Plugins menu
+  - Command Line: Install Oracle's 1.8 JDK. Run ./gradlew tasks to see available build tasks. For example: to build a jar for Desktop Java use ./gradlew shadowJar
 
 Picture of HLK-SW16 wired-up to replace my original sprinker controller.
 
