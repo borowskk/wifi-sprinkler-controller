@@ -28,7 +28,8 @@ Background:
     - It can be attached to your WIFI as a client
 
 Building:
-  - My environment had Netbeans 8.2, the Android SDK, and Oracle's 1.8 JDK. I also installed the gluon plugin for Netbeans through the Netbeans Tools-Plugins menu.
+  - Netbeans: My environment had Netbeans 8.2, the Android SDK, and Oracle's 1.8 JDK. I also installed the gluon plugin for Netbeans through the Netbeans Tools-Plugins menu.
+    Command Line: Install gradle using something like sdkman. Install Oracle's 1.8 JDK. Run ./gradlew tasks to see build tasks. To build a jar for Desktop Java use ./gradlew shadowJar.
 
 Picture of HLK-SW16 wired-up to replace my original sprinker controller.
 
